@@ -48,30 +48,6 @@ def desactivar_categoria(categoria_id: int):
         return {"mensaje": "Categoría desactivada correctamente"}
 
 # ENDPOINTS DE PRODUCTOS
-@router.post("/productos")
-def crear_producto(producto: Producto):
-    if producto.stock < 0:
-        raise HTTPException(status_code=400, detail="El stock no puede ser negativo")
-
-    with Session(motor) as session:
-        session.add(producto)
-        session.commit()
-        session.refresh(producto)
-        return producto
-
-
-@router.get("/productos")
-def listar_productos():
-    with Session(motor) as session:
-        return session.exec(select(Producto)).all()
-
-
-@router.get("/productos/categoria/{categoria_id}")
-def productos_por_categoria(categoria_id: int):
-    with Session(motor) as session:
-        productos = session.exec(select(Producto).where(Producto.categoria_id == categoria_id)).all()
-        return productos
-
 
 @router.put("/productos/{producto_id}")
 def actualizar_producto(producto_id: int, nuevo_producto: Producto):
