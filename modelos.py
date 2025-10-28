@@ -1,14 +1,10 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from sqlmodel import SQLModel, Field
+from typing import Optional
 
-# MODELO DE CATEGORÍA
-class Categoria(SQLModel, table=True):
+class Category(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str
-    descripcion: str
-    activa: bool = True
-
-    productos: List["Producto"] = Relationship(back_populates="categoria")
+    descripcion: Optional[str] = None
 
 
 # MODELO DE PRODUCTO
