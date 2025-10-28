@@ -5,7 +5,9 @@ from modelos import Categoria, Producto
 
 router = APIRouter()
 
-#Endpoints de categoria
+
+# ENDPOINTS DE CATEGORÍAS
+
 
 @router.post("/categorias")
 def crear_categoria(categoria: Categoria):
@@ -47,7 +49,9 @@ def desactivar_categoria(categoria_id: int):
         session.commit()
         return {"mensaje": "Categoría desactivada correctamente"}
 
+
 # ENDPOINTS DE PRODUCTOS
+
 
 @router.post("/productos")
 def crear_producto(producto: Producto):
@@ -67,7 +71,11 @@ def listar_productos():
         return session.exec(select(Producto)).all()
 
 
-
+@router.get("/productos/categoria/{categoria_id}")
+def productos_por_categoria(categoria_id: int):
+    with Session(motor) as session:
+        productos = session.exec(select(Producto).where(Producto.categoria_id == categoria_id)).all()
+        return productos
 
 
 @router.put("/productos/{producto_id}")
@@ -85,3 +93,42 @@ def actualizar_producto(producto_id: int, nuevo_producto: Producto):
         session.commit()
         session.refresh(producto)
         return producto
+
+
+@router.delete("/productos/{producto_id}")
+def eliminar_producto(producto_id: int):
+    with Session(motor) as session:
+        producto = session.get(Producto, producto_id)
+        if not producto:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        session.delete(producto)
+        session.commit()
+        return {"mensaje": "Producto eliminado correctamente"}
+
+
+@router.post("/productos/{producto_id}/restock")
+def aumentar_stock(producto_id: int, cantidad: int):
+    with Session(motor) as session:
+        producto = session.get(Producto, producto_id)
+        if producto:
+            producto.stock += cantidad
+            session.commit()
+            session.refresh(producto)
+            return producto
+        else:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+
+@router.post("/productos/{producto_id}/purchase")
+def comprar_producto(producto_id: int, cantidad: int):
+    with Session(motor) as session:
+        producto = session.get(Producto, producto_id)
+        if producto:
+            if producto.stock < cantidad:
+                raise HTTPException(status_code=400, detail="Stock insuficiente")
+            producto.stock -= cantidad
+            session.commit()
+            session.refresh(producto)
+            return producto
+        else:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
