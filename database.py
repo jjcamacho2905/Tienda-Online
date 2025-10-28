@@ -1,14 +1,16 @@
 from sqlmodel import SQLModel, create_engine, Session
 
-# Conexión a la base de datos SQLite
-DATABASE_URL = "sqlite:///tienda.db"
-engine = create_engine(DATABASE_URL, echo=True)
+# Nombre del archivo de base de datos SQLite
+DATABASE_URL = "sqlite:///./tienda.db"
 
-# Crear las tablas
+# Motor de conexión
+motor = create_engine(DATABASE_URL, echo=True)
+
+# Inicializa la base de datos (crea tablas si no existen)
 def init_db():
-    SQLModel.metadata.create_all(engine)
+    SQLModel.metadata.create_all(motor)
 
-# Sesión de base de datos
+# Devuelve una sesión de base de datos
 def get_session():
-    with Session(engine) as session:
+    with Session(motor) as session:
         yield session
