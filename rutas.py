@@ -6,8 +6,7 @@ from modelos import Categoria, Producto
 router = APIRouter()
 
 # --- CATEGORÍAS ---
-
-@router.post("/categorias")
+@router.post("/categorias", tags=["Categorías"])
 def crear_categoria(categoria: Categoria):
     with Session(motor) as session:
         session.add(categoria)
@@ -15,12 +14,12 @@ def crear_categoria(categoria: Categoria):
         session.refresh(categoria)
         return categoria
 
-@router.get("/categorias")
+@router.get("/categorias", tags=["Categorías"])
 def listar_categorias():
     with Session(motor) as session:
         return session.exec(select(Categoria)).all()
 
-@router.get("/categorias/{categoria_id}")
+@router.get("/categorias/{categoria_id}", tags=["Categorías"])
 def obtener_categoria(categoria_id: int):
     with Session(motor) as session:
         categoria = session.get(Categoria, categoria_id)
@@ -28,7 +27,7 @@ def obtener_categoria(categoria_id: int):
             raise HTTPException(status_code=404, detail="Categoría no encontrada")
         return categoria
 
-@router.put("/categorias/{categoria_id}")
+@router.put("/categorias/{categoria_id}", tags=["Categorías"])
 def actualizar_categoria(categoria_id: int, nueva_categoria: Categoria):
     with Session(motor) as session:
         categoria = session.get(Categoria, categoria_id)
@@ -40,7 +39,7 @@ def actualizar_categoria(categoria_id: int, nueva_categoria: Categoria):
         session.refresh(categoria)
         return categoria
 
-@router.delete("/categorias/{categoria_id}")
+@router.delete("/categorias/{categoria_id}", tags=["Categorías"])
 def eliminar_categoria(categoria_id: int):
     with Session(motor) as session:
         categoria = session.get(Categoria, categoria_id)
@@ -52,8 +51,7 @@ def eliminar_categoria(categoria_id: int):
 
 
 # --- PRODUCTOS ---
-
-@router.post("/productos")
+@router.post("/productos", tags=["Productos"])
 def crear_producto(producto: Producto):
     with Session(motor) as session:
         session.add(producto)
@@ -61,12 +59,12 @@ def crear_producto(producto: Producto):
         session.refresh(producto)
         return producto
 
-@router.get("/productos")
+@router.get("/productos", tags=["Productos"])
 def listar_productos():
     with Session(motor) as session:
         return session.exec(select(Producto)).all()
 
-@router.get("/productos/{producto_id}")
+@router.get("/productos/{producto_id}", tags=["Productos"])
 def obtener_producto(producto_id: int):
     with Session(motor) as session:
         producto = session.get(Producto, producto_id)
@@ -74,7 +72,7 @@ def obtener_producto(producto_id: int):
             raise HTTPException(status_code=404, detail="Producto no encontrado")
         return producto
 
-@router.put("/productos/{producto_id}")
+@router.put("/productos/{producto_id}", tags=["Productos"])
 def actualizar_producto(producto_id: int, nuevo_producto: Producto):
     with Session(motor) as session:
         producto = session.get(Producto, producto_id)
@@ -88,7 +86,7 @@ def actualizar_producto(producto_id: int, nuevo_producto: Producto):
         session.refresh(producto)
         return producto
 
-@router.delete("/productos/{producto_id}")
+@router.delete("/productos/{producto_id}", tags=["Productos"])
 def eliminar_producto(producto_id: int):
     with Session(motor) as session:
         producto = session.get(Producto, producto_id)
