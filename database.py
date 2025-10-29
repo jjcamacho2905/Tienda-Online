@@ -14,3 +14,5 @@ def init_db():
 def get_session():
     with Session(motor) as session:
         yield session
+
+

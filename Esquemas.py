@@ -56,3 +56,4 @@ class ProductUpdate(SQLModel):
     precio: Optional[float] = None
     cantidad: Optional[int] = None
     categoria_id: Optional[int] = None
+

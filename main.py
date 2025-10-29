@@ -2,7 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select
 from database import init_db, get_session, motor
 from modelos import Categoria, Producto
-from schemas import CategoryCreate, CategoryRead, CategoryUpdate
+from Esquemas import CategoryCreate, CategoryRead, CategoryUpdate
+
 
 app = FastAPI(title="Sistema de Tienda Online", version="2.0")
 
