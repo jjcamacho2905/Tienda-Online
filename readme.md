@@ -91,16 +91,16 @@ uvicorn main:app --reload
 
 ##9. Endpoints disponibles
  
- Método     Endpoint                              Descripción                    |
-
- GET       `/categorias`                        Listar categorías              |
- POST      `/categorias`                        Crear categoría                |
- PUT       `/categorias/{id}`                   Actualizar categoría           |
- DELETE    `/categorias/{id}`                   Eliminar categoría             |
- GET       `/productos`                         Listar productos               |
- POST      `/productos`                         Crear producto                 |
- PUT       `/productos/{producto_id}`           Actualizar producto            |
- DELETE    `/productos/{producto_id}`           Eliminar producto              |
- PUT       `/productos/{producto_id}/estado`    Activar/Desactivar producto    |
- PUT       `/productos/{producto_id}/comprar`   Restar stock (evita negativos) |
- GET       `/productos/estado`                  Listar productos por estado    |
+ Método     Endpoint                              Descripción                   
+ 
+ GET       `/categorias`                        Listar categorías              
+ POST      `/categorias`                        Crear categoría                
+ PUT       `/categorias/{id}`                   Actualizar categoría           
+ DELETE    `/categorias/{id}`                   Eliminar categoría             
+ GET       `/productos`                         Listar productos               
+ POST      `/productos`                         Crear producto                 
+ PUT       `/productos/{producto_id}`           Actualizar producto            
+ DELETE    `/productos/{producto_id}`           Eliminar producto              
+ PUT       `/productos/{producto_id}/estado`    Activar/Desactivar producto    
+ PUT       `/productos/{producto_id}/comprar`   Restar stock (evita negativos) 
+ GET       `/productos/estado`                  Listar productos por estado    
