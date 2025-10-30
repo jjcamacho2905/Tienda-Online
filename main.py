@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlmodel import Session, select
 from database import init_db, get_session, motor
 from modelos import Categoria, Producto
-from Esquemas import CategoryCreate, CategoryRead, CategoryUpdate
+from Esquemas import CategoryCreate, CategoryRead, CategoryUpdate, ProductCreate, ProductRead
 
 
 app = FastAPI(title="Sistema de Tienda Online", version="2.0")
@@ -22,6 +22,11 @@ def root():
 
 @app.post("/categorias", response_model=CategoryRead)
 def crear_categoria(data: CategoryCreate, session: Session = Depends(get_session)):
+    # Verificar si ya existe una categoría con el mismo nombre
+    categoria_existente = session.exec(select(Categoria).where(Categoria.nombre == data.nombre)).first()
+    if categoria_existente:
+        raise HTTPException(status_code=400, detail="El nombre de la categoría debe ser único.")
+
     categoria = Categoria.from_orm(data)
     session.add(categoria)
     session.commit()
@@ -64,13 +69,24 @@ def eliminar_categoria(id: int, session: Session = Depends(get_session)):
 #CRUD DE PRODUCTOS
 
 
-@app.post("/productos")
-def crear_producto(producto: Producto):
-    with Session(motor) as session:
-        session.add(producto)
-        session.commit()
-        session.refresh(producto)
-        return producto
+@app.post("/productos", response_model=ProductRead)
+def crear_producto(data: ProductCreate, session: Session = Depends(get_session)):
+    # Verificar que la categoría exista
+    categoria = session.exec(select(Categoria).where(Categoria.id == data.categoria_id)).first()
+    if not categoria:
+        raise HTTPException(status_code=400, detail="La categoría asignada no existe.")
+
+    # Verificar que el stock no sea negativo
+    if data.stock < 0:
+        raise HTTPException(status_code=400, detail="El stock no puede ser negativo.")
+
+    # Crear el producto
+    producto = Producto.from_orm(data)  # Aquí usas 'producto'
+    session.add(producto)
+    session.commit()
+    session.refresh(producto)  # Cambié 'prod' por 'producto'
+    return producto
+
 
 @app.get("/productos")
 def listar_productos():
