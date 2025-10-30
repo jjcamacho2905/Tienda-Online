@@ -1,17 +1,13 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel
 
 
-# MODELOS DE CATEGORÍAS
-
+# ==========================
+# CATEGORÍAS
+# ==========================
 class CategoryBase(SQLModel):
     nombre: str
     descripcion: Optional[str] = None
-
-
-class Category(CategoryBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    productos: list["Product"] = Relationship(back_populates="categoria")
 
 
 class CategoryCreate(CategoryBase):
@@ -21,33 +17,38 @@ class CategoryCreate(CategoryBase):
 class CategoryRead(CategoryBase):
     id: int
 
+    class Config:
+        from_attributes = True
+
 
 class CategoryUpdate(SQLModel):
     nombre: Optional[str] = None
     descripcion: Optional[str] = None
 
 
-# MODELOS DE PRODUCTOS
-
+# ==========================
+# PRODUCTOS
+# ==========================
 class ProductBase(SQLModel):
     nombre: str
-    descripcion: Optional[str] = None
     precio: float
-    cantidad: int = 0
-    categoria_id: Optional[int] = Field(default=None, foreign_key="category.id")
+    cantidad: int
+    categoria_id: int
+    activo: Optional[bool] = True
 
 
-class Product(ProductBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    categoria: Optional[Category] = Relationship(back_populates="productos")
-
-
-class ProductCreate(ProductBase):
-    pass
+class ProductCreate(SQLModel):  # 👈 ya no hereda de ProductBase
+    nombre: str
+    precio: float
+    cantidad: int
+    categoria_id: int
 
 
 class ProductRead(ProductBase):
     id: int
+
+    class Config:
+        from_attributes = True
 
 
 class ProductUpdate(SQLModel):
@@ -56,4 +57,4 @@ class ProductUpdate(SQLModel):
     precio: Optional[float] = None
     cantidad: Optional[int] = None
     categoria_id: Optional[int] = None
-
+    activo: Optional[bool] = None
