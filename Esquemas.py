@@ -2,9 +2,9 @@ from typing import Optional
 from sqlmodel import SQLModel
 
 
-# ==========================
+
 # CATEGORÍAS
-# ==========================
+
 class CategoryBase(SQLModel):
     nombre: str
     descripcion: Optional[str] = None
@@ -26,9 +26,9 @@ class CategoryUpdate(SQLModel):
     descripcion: Optional[str] = None
 
 
-# ==========================
+
 # PRODUCTOS
-# ==========================
+
 class ProductBase(SQLModel):
     nombre: str
     precio: float

@@ -104,3 +104,68 @@ uvicorn main:app --reload
  PUT       `/productos/{producto_id}/estado`    Activar/Desactivar producto    
  PUT       `/productos/{producto_id}/comprar`   Restar stock (evita negativos) 
  GET       `/productos/estado`                  Listar productos por estado    
+
+
+
+/                               [GET]
+  └─ Mensaje: "API de Tienda Online operativa"
+
+/categorias                     [POST]
+  └─ Body: { "nombre": "string" }
+  └─ 201: Categoría creada
+  └─ 400: Nombre muy corto
+  └─ 404: Categoría ya existe
+
+/categorias                     [GET]
+  └─ Lista de categorías
+  └─ 200: OK
+
+/categorias/{id}                [GET]
+  └─ 404: Categoría no encontrada
+  └─ 200: OK
+
+/categorias/{id}                [PUT]
+  └─ Body: { "nombre": "string" }
+  └─ 400: Nombre muy corto
+  └─ 404: Categoría no encontrada
+  └─ 200: Actualización correcta
+
+/categorias/{id}                [DELETE]
+  └─ 404: Categoría no encontrada
+  └─ 404: No se puede eliminar, tiene productos asociados
+  └─ 200: Eliminación correcta
+
+/productos                      [POST]
+  └─ Body: { "nombre": "string", "precio": float, "cantidad": int, "categoria_id": int }
+  └─ 201: Producto creado
+  └─ 400: Cantidad negativa o precio <= 0
+  └─ 404: Categoría no encontrada
+
+/productos                      [GET]
+  └─ Query: stock_min, precio_max, categoria_id (opcionales)
+  └─ 200: Lista de productos filtrados
+
+/productos/{id}                 [GET]
+  └─ 404: Producto no encontrado
+  └─ 200: OK
+
+/productos/{id}                 [PUT]
+  └─ Body: { "nombre"?, "precio"?, "cantidad"? }
+  └─ 400: Cantidad negativa o precio <= 0
+  └─ 404: Producto no encontrado
+  └─ 200: Actualización correcta
+
+/productos/{id}                 [DELETE]
+  └─ 404: Producto no encontrado
+  └─ 200: Eliminación correcta
+
+/productos/{id}/comprar         [PUT]
+  └─ Query: cantidad=int
+  └─ 400: No hay suficiente stock
+  └─ 404: Producto no encontrado
+  └─ 200: Stock reducido correctamente
+
+/productos/{id}/estado          [PUT]
+  └─ Query: activo=bool
+  └─ 404: Producto no encontrado
+  └─ 200: Estado actualizado correctamente

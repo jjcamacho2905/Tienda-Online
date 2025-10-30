@@ -4,14 +4,16 @@ from database import init_db, get_session
 from modelos import Categoria, Producto
 from Esquemas import CategoryCreate, CategoryRead, CategoryUpdate, ProductCreate, ProductRead, ProductUpdate
 from typing import Optional, List
+from fastapi.responses import JSONResponse
+
 
 
 app = FastAPI(title="Sistema de Tienda Online", version="2.0")
 
 
-# ==========================
+
 # INICIO DE LA BASE DE DATOS
-# ==========================
+
 @app.on_event("startup")
 def on_startup():
     init_db()
@@ -22,163 +24,129 @@ def root():
     return {"message": "API de Tienda Online operativa"}
 
 
-# ==========================
+
 # CRUD DE CATEGORÍAS
-# ==========================
 
 @app.post("/categorias", response_model=CategoryRead)
-def crear_categoria(data: CategoryCreate, session: Session = Depends(get_session)):
-    categoria_existente = session.exec(select(Categoria).where(Categoria.nombre == data.nombre)).first()
-    if categoria_existente:
-        raise HTTPException(status_code=400, detail="El nombre de la categoría debe ser único.")
-
-    categoria = Categoria.from_orm(data)
+def crear_categoria(datos: CategoryCreate, session: Session = Depends(get_session)):
+    if len(datos.nombre.strip()) < 3:
+        raise HTTPException(status_code=400, detail="El nombre de la categoría es muy corto.")
+    if session.exec(select(Categoria).where(Categoria.nombre == datos.nombre)).first():
+        raise HTTPException(status_code=404, detail="La categoría ya existe.")
+    categoria = Categoria.from_orm(datos)
     session.add(categoria)
     session.commit()
     session.refresh(categoria)
-    return categoria
+    return JSONResponse(status_code=201, content=categoria.dict())
 
-
-@app.get("/categorias", response_model=list[CategoryRead])
+@app.get("/categorias", response_model=List[CategoryRead])
 def listar_categorias(session: Session = Depends(get_session)):
     return session.exec(select(Categoria)).all()
 
-
-@app.get("/categorias/{id}", response_model=CategoryRead)
-def obtener_categoria(id: int, session: Session = Depends(get_session)):
-    categoria = session.get(Categoria, id)
+@app.get("/categorias/{id_categoria}", response_model=CategoryRead)
+def obtener_categoria(id_categoria: int, session: Session = Depends(get_session)):
+    categoria = session.get(Categoria, id_categoria)
     if not categoria:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
     return categoria
 
-
-@app.put("/categorias/{id}", response_model=CategoryRead)
-def actualizar_categoria(id: int, data: CategoryUpdate, session: Session = Depends(get_session)):
-    categoria = session.get(Categoria, id)
+@app.put("/categorias/{id_categoria}", response_model=CategoryRead)
+def actualizar_categoria(id_categoria: int, datos: CategoryUpdate, session: Session = Depends(get_session)):
+    categoria = session.get(Categoria, id_categoria)
     if not categoria:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
-
-    for key, value in data.dict(exclude_unset=True).items():
+    if datos.nombre and len(datos.nombre.strip()) < 3:
+        raise HTTPException(status_code=400, detail="El nombre es muy corto.")
+    for key, value in datos.dict(exclude_unset=True).items():
         setattr(categoria, key, value)
-
     session.commit()
     session.refresh(categoria)
     return categoria
 
-
-@app.delete("/categorias/{id}")
-def eliminar_categoria(id: int, session: Session = Depends(get_session)):
-    categoria = session.get(Categoria, id)
+@app.delete("/categorias/{id_categoria}")
+def eliminar_categoria(id_categoria: int, session: Session = Depends(get_session)):
+    categoria = session.get(Categoria, id_categoria)
     if not categoria:
         raise HTTPException(status_code=404, detail="Categoría no encontrada")
-
+    productos = session.exec(select(Producto).where(Producto.categoria_id == id_categoria)).all()
+    if productos:
+        raise HTTPException(status_code=404, detail="No se puede eliminar, tiene productos asociados.")
     session.delete(categoria)
     session.commit()
-    return {"message": "Categoría eliminada correctamente"}
+    return {"mensaje": "Categoría eliminada correctamente"}
 
 
-# ==========================
 # CRUD DE PRODUCTOS
-# ==========================
 
 @app.post("/productos", response_model=ProductRead)
-def crear_producto(data: ProductCreate, session: Session = Depends(get_session)):
-    categoria = session.exec(select(Categoria).where(Categoria.id == data.categoria_id)).first()
+def crear_producto(datos: ProductCreate, session: Session = Depends(get_session)):
+    categoria = session.get(Categoria, datos.categoria_id)
     if not categoria:
-        raise HTTPException(status_code=400, detail="La categoría asignada no existe.")
-
-    if data.cantidad < 0:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada.")
+    if datos.cantidad < 0:
         raise HTTPException(status_code=400, detail="La cantidad no puede ser negativa.")
-
-    producto = Producto.from_orm(data)
+    if datos.precio <= 0:
+        raise HTTPException(status_code=400, detail="El precio debe ser mayor que 0.")
+    producto = Producto.from_orm(datos)
     session.add(producto)
     session.commit()
     session.refresh(producto)
-    return producto
+    return JSONResponse(status_code=201, content=producto.dict())
 
+@app.get("/productos", response_model=List[ProductRead])
+def listar_productos(session: Session = Depends(get_session)):
+    consulta = select(Producto)
+    productos = session.exec(consulta).all()
+    return productos
 
-@app.get("/productos", response_model=list[ProductRead])
-def listar_productos(
-    stock_min: Optional[int] = None,
-    precio_max: Optional[float] = None,
-    categoria_id: Optional[int] = None,
-    session: Session = Depends(get_session)
-):
-    query = select(Producto)
-    if stock_min is not None:
-        query = query.where(Producto.cantidad >= stock_min)
-    if precio_max is not None:
-        query = query.where(Producto.precio <= precio_max)
-    if categoria_id is not None:
-        query = query.where(Producto.categoria_id == categoria_id)
-
-    return session.exec(query).all()
-
-
-@app.get("/productos/{producto_id}", response_model=ProductRead)
-def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
-    producto = session.get(Producto, producto_id)
+@app.get("/productos/{id_producto}", response_model=ProductRead)
+def obtener_producto(id_producto: int, session: Session = Depends(get_session)):
+    producto = session.get(Producto, id_producto)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return producto
 
-
-@app.put("/productos/{producto_id}", response_model=ProductRead)
-def actualizar_producto(producto_id: int, data: ProductUpdate, session: Session = Depends(get_session)):
-    producto = session.get(Producto, producto_id)
+@app.put("/productos/{id_producto}", response_model=ProductRead)
+def actualizar_producto(id_producto: int, datos: ProductUpdate, session: Session = Depends(get_session)):
+    producto = session.get(Producto, id_producto)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-
-    if data.cantidad is not None and data.cantidad < 0:
+    if datos.cantidad is not None and datos.cantidad < 0:
         raise HTTPException(status_code=400, detail="La cantidad no puede ser negativa.")
-
-    for key, value in data.dict(exclude_unset=True).items():
+    if datos.precio is not None and datos.precio <= 0:
+        raise HTTPException(status_code=400, detail="El precio debe ser mayor que 0.")
+    for key, value in datos.dict(exclude_unset=True).items():
         setattr(producto, key, value)
-
     session.commit()
     session.refresh(producto)
     return producto
 
-
-@app.delete("/productos/{producto_id}")
-def eliminar_producto(producto_id: int, session: Session = Depends(get_session)):
-    producto = session.get(Producto, producto_id)
+@app.delete("/productos/{id_producto}")
+def eliminar_producto(id_producto: int, session: Session = Depends(get_session)):
+    producto = session.get(Producto, id_producto)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-
     session.delete(producto)
     session.commit()
-    return {"message": "Producto eliminado correctamente"}
+    return {"mensaje": "Producto eliminado correctamente"}
 
-
-@app.put("/productos/{producto_id}/comprar", response_model=ProductRead)
-def restar_stock(producto_id: int, cantidad: int, session: Session = Depends(get_session)):
-    producto = session.get(Producto, producto_id)
+@app.put("/productos/{id_producto}/comprar", response_model=ProductRead)
+def comprar_producto(id_producto: int, cantidad: int, session: Session = Depends(get_session)):
+    producto = session.get(Producto, id_producto)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-
     if producto.cantidad < cantidad:
-        raise HTTPException(status_code=400, detail="No hay suficiente stock disponible.")
-
+        raise HTTPException(status_code=400, detail="No hay suficiente stock.")
     producto.cantidad -= cantidad
     session.commit()
     session.refresh(producto)
     return producto
-@app.get("/productos/estado", response_model=List[ProductRead])
-def listar_productos_por_estado(
-    activo: bool = Query(True, description="Filtrar productos activos (True) o inactivos (False)"),
-    session: Session = Depends(get_session),
-):
-    productos = session.exec(select(Producto).where(Producto.activo == activo)).all()
-    return productos
 
-
-@app.put("/productos/{producto_id}/estado", response_model=ProductRead)
-def cambiar_estado_producto(producto_id: int, activo: bool, session: Session = Depends(get_session)):
-    producto = session.get(Producto, producto_id)
+@app.put("/productos/{id_producto}/estado", response_model=ProductRead)
+def cambiar_estado_producto(id_producto: int, activo: bool, session: Session = Depends(get_session)):
+    producto = session.get(Producto, id_producto)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-
     producto.activo = activo
     session.commit()
     session.refresh(producto)

@@ -1,8 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlmodel import Session, select
-from database import init_db, get_session, motor
+from database import init_db, get_session
 from modelos import Categoria, Producto
 from Esquemas import CategoryCreate, CategoryRead, CategoryUpdate, ProductCreate, ProductRead, ProductUpdate
+from typing import Optional, List
 
 app = FastAPI(title="Sistema de Tienda Online", version="2.0")
 
@@ -64,6 +65,14 @@ def eliminar_categoria(id: int, session: Session = Depends(get_session)):
     session.commit()
     return {"message": "Categoría desactivada correctamente"}
 
+# Endpoint relacional padre-hijo
+@app.get("/categorias/{id_categoria}/productos", response_model=CategoryRead)
+def categoria_con_productos(id_categoria: int, session: Session = Depends(get_session)):
+    categoria = session.get(Categoria, id_categoria)
+    if not categoria:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada")
+    return categoria  # Incluye productos por la relación SQLModel
+
 
 # CRUD DE PRODUCTOS
 
@@ -85,20 +94,9 @@ def crear_producto(producto: ProductCreate, session: Session = Depends(get_sessi
 
 
 @app.get("/productos", response_model=list[ProductRead])
-def listar_productos(stock: Optional[int] = None, precio: Optional[float] = None, categoria_id: Optional[int] = None,
-                     session: Session = Depends(get_session)):
-    query = select(Producto)
-
-    if stock is not None:
-        query = query.where(Producto.stock >= stock)
-    if precio is not None:
-        query = query.where(Producto.precio <= precio)
-    if categoria_id is not None:
-        query = query.where(Producto.categoria_id == categoria_id)
-
-    productos = session.exec(query).all()
+def listar_productos(session: Session = Depends(get_session)):
+    productos = session.exec(select(Producto)).all()
     return productos
-
 
 @app.get("/productos/{producto_id}", response_model=ProductRead)
 def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
