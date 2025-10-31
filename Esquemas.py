@@ -1,9 +1,11 @@
-from typing import Optional, List
 from sqlmodel import SQLModel
+from typing import Optional
+from pydantic import Field
 
-# CATEGORÍAS
+# ========= CATEGORÍAS =========
+
 class CategoryBase(SQLModel):
-    nombre: str
+    nombre: str = Field(min_length=3, description="Debe tener al menos 3 caracteres")
     descripcion: Optional[str] = None
 
 class CategoryCreate(CategoryBase):
@@ -13,14 +15,12 @@ class CategoryRead(CategoryBase):
     id: int
     activo: bool = True
 
-
     class Config:
         from_attributes = True
 
 class CategoryUpdate(SQLModel):
-    nombre: Optional[str] = None
+    nombre: Optional[str] = Field(default=None, min_length=3)
     descripcion: Optional[str] = None
-
 
 
 
