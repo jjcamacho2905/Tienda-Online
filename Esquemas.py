@@ -1,25 +1,21 @@
-from typing import Optional
+from typing import Optional, List
 from sqlmodel import SQLModel
 
-
-
 # CATEGORÍAS
-
 class CategoryBase(SQLModel):
     nombre: str
     descripcion: Optional[str] = None
 
-
 class CategoryCreate(CategoryBase):
     pass
 
-
 class CategoryRead(CategoryBase):
     id: int
+    activo: bool = True
+
 
     class Config:
         from_attributes = True
-
 
 class CategoryUpdate(SQLModel):
     nombre: Optional[str] = None
@@ -27,21 +23,20 @@ class CategoryUpdate(SQLModel):
 
 
 
+
 # PRODUCTOS
 
 class ProductBase(SQLModel):
     nombre: str
+    descripcion: Optional[str] = None
     precio: float
     cantidad: int
     categoria_id: int
     activo: Optional[bool] = True
 
 
-class ProductCreate(SQLModel):  # 👈 ya no hereda de ProductBase
-    nombre: str
-    precio: float
-    cantidad: int
-    categoria_id: int
+class ProductCreate(ProductBase):
+    pass
 
 
 class ProductRead(ProductBase):
