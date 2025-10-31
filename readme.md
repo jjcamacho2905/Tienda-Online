@@ -26,17 +26,17 @@ Permite administrar **categorías** y **productos**, con operaciones completas *
 
 ---
 
-## ⚙ Instalación y configuración
+##  Instalación y configuración
 
-### 1️⃣ Clonar el repositorio
+### 1️ Clonar el repositorio
 ```bash
 git clone https://github.com/tu_usuario/tienda-fastapi.git
 cd tienda-fastapi
-2️⃣ Crear entorno virtual
+2 Crear entorno virtual
 bash
 Copiar código
 python -m venv .venv
-3️⃣ Activar entorno
+3️  Activar entorno
 Windows:
 
 bash
@@ -47,11 +47,11 @@ Linux/Mac:
 bash
 Copiar código
 source .venv/bin/activate
-4️⃣ Instalar dependencias
+4 Instalar dependencias
 bash
 Copiar código
 pip install -r requirements.txt
-5️⃣ Crear archivo .env
+5️  Crear archivo .env
 bash
 Copiar código
 cp .env.example .env
@@ -77,35 +77,32 @@ nombre	str	Nombre de la categoría
 descripcion	str	Descripción opcional
 
  Producto
-Campo	Tipo	Descripción
-id	int	Identificador único
-nombre	str	Nombre del producto
-precio	float	Precio unitario
-cantidad	int	Stock disponible
-activo	bool	Estado (True = activo, False = inactivo)
-categoria_id	int	ID de la categoría asociada
+Campo	   Tipo	         Descripción
+id	        int       	Identificador único
+nombre	    str	        Nombre del producto
+precio	    float	      Precio unitario
+cantidad	int	           Stock disponible
+activo	    bool	    Estado (True = activo, False = inactivo)
+categoria_id int	    ID de la categoría asociada
 
-▶️ Ejecución del servidor
-Inicia el servidor con:
+  Ejecución del servidor
 
-bash
-Copiar código
 uvicorn main:app --reload
 
  
  Endpoints disponibles
-Método	Endpoint	Descripción
-GET	/categorias	Listar categorías
-POST	/categorias	Crear categoría
-PUT	/categorias/{id}	Actualizar categoría
-DELETE	/categorias/{id}	Eliminar categoría
-GET	/productos	Listar productos
-POST	/productos	Crear producto
-PUT	/productos/{producto_id}	Actualizar producto
-DELETE	/productos/{producto_id}	Eliminar producto
-PUT	/productos/{producto_id}/estado	Activar/Desactivar producto
-PUT	/productos/{producto_id}/comprar	Restar stock (evita negativos)
-GET	/productos/estado	Listar productos por estado
+Método	  Endpoint     	                     Descripción
+GET	      /categorias	                    Listar categorías
+POST	  /categorias	                    Crear categoría
+PUT	      /categorias/{id}	                Actualizar categoría
+DELETE	  /categorias/{id}	                Eliminar categoría
+GET	      /productos	                    Listar productos
+POST	  /productos	                    Crear producto
+PUT	      /productos/{producto_id}	        Actualizar producto
+DELETE	  /productos/{producto_id}	        Eliminar producto
+PUT      /productos/{producto_id}/estado	Activar/Desactivar producto
+PUT	     /productos/{producto_id}/comprar	Restar stock (evita negativos)
+GET	     /productos/estado	                 Listar productos por estado
 
    Ejemplos de respuestas
 GET /
