@@ -13,7 +13,7 @@ router = APIRouter()
 @router.get("/categorias", response_model=List[CategoryRead], status_code=status.HTTP_200_OK)
 def listar_categorias(session: Session = Depends(get_session)):
     """
-    Obtiene todas las categorías activas.
+    Devuelve todas las categorías activas
     """
     categorias = session.exec(select(Categoria).where(Categoria.activo == True)).all()
     if not categorias:
@@ -24,7 +24,7 @@ def listar_categorias(session: Session = Depends(get_session)):
 @router.get("/categorias/{id}", response_model=CategoryRead, status_code=status.HTTP_200_OK)
 def obtener_categoria(id: int, session: Session = Depends(get_session)):
     """
-    Obtiene una categoría por su ID.
+    Devuelve una categoría por su ID.
     """
     categoria = session.get(Categoria, id)
     if not categoria:
@@ -35,7 +35,7 @@ def obtener_categoria(id: int, session: Session = Depends(get_session)):
 @router.post("/categorias", response_model=CategoryRead, status_code=status.HTTP_201_CREATED)
 def crear_categoria(data: CategoryCreate, session: Session = Depends(get_session)):
     """
-    Crea una nueva categoría.
+    Crea una nueva categoría si no existe otra con el mismo nombre.
     """
     existente = session.exec(select(Categoria).where(Categoria.nombre == data.nombre)).first()
     if existente:
@@ -51,7 +51,7 @@ def crear_categoria(data: CategoryCreate, session: Session = Depends(get_session
 @router.put("/categorias/{id}", response_model=CategoryRead, status_code=status.HTTP_200_OK)
 def actualizar_categoria(id: int, data: CategoryUpdate, session: Session = Depends(get_session)):
     """
-    Actualiza una categoría existente.
+    Actualiza los datos de una categoría existente.
     """
     categoria = session.get(Categoria, id)
     if not categoria:
@@ -68,7 +68,7 @@ def actualizar_categoria(id: int, data: CategoryUpdate, session: Session = Depen
 @router.delete("/categorias/{id}", status_code=status.HTTP_200_OK)
 def eliminar_categoria(id: int, session: Session = Depends(get_session)):
     """
-    Desactiva una categoría (eliminación lógica).
+    Desactiva una categoría sin eliminarla del todo.
     """
     categoria = session.get(Categoria, id)
     if not categoria:
@@ -96,7 +96,7 @@ def categoria_con_productos(id_categoria: int, session: Session = Depends(get_se
 @router.post("/productos", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
 def crear_producto(producto: ProductCreate, session: Session = Depends(get_session)):
     """
-    Crea un nuevo producto asociado a una categoría existente.
+    Crea un nuevo producto asociado a una categoría
     """
     categoria = session.get(Categoria, producto.categoria_id)
     if not categoria:
@@ -121,7 +121,7 @@ def listar_productos(
         session: Session = Depends(get_session)
 ):
     """
-    Lista productos con filtros opcionales: stock mínimo, precio máximo y categoría.
+    "Lista productos con filtros opcionales.
     """
     consulta = select(Producto).where(Producto.activo == True)
 
@@ -141,7 +141,7 @@ def listar_productos(
 @router.get("/productos/{producto_id}", response_model=ProductRead, status_code=status.HTTP_200_OK)
 def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
     """
-    Obtiene un producto por su ID.
+    Devuelve un producto por su ID.
     """
     producto = session.get(Producto, producto_id)
     if not producto:
@@ -152,7 +152,7 @@ def obtener_producto(producto_id: int, session: Session = Depends(get_session)):
 @router.put("/productos/{producto_id}", response_model=ProductRead, status_code=status.HTTP_200_OK)
 def actualizar_producto(producto_id: int, data: ProductUpdate, session: Session = Depends(get_session)):
     """
-    Actualiza los datos de un producto existente.
+    Actualiza los datos de un producto
     """
     producto = session.get(Producto, producto_id)
     if not producto:
@@ -169,7 +169,7 @@ def actualizar_producto(producto_id: int, data: ProductUpdate, session: Session 
 @router.delete("/productos/{producto_id}", status_code=status.HTTP_200_OK)
 def eliminar_producto(producto_id: int, session: Session = Depends(get_session)):
     """
-    Desactiva un producto (eliminación lógica).
+    Desactiva un producto sin eliminarlo del todo.
     """
     producto = session.get(Producto, producto_id)
     if not producto:

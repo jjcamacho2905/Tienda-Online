@@ -2,9 +2,9 @@ from sqlmodel import SQLModel, create_engine, Session
 import os
 from dotenv import load_dotenv
 
-# ============================================================
+
 # CONFIGURACIÓN DE CONEXIÓN A LA BASE DE DATOS
-# ============================================================
+
 
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
@@ -20,19 +20,15 @@ motor = create_engine(DATABASE_URL, echo=True)
 
 def init_db():
     """
-    Inicializa la base de datos creando todas las tablas
-    definidas en los modelos SQLModel.
+    Crea las tablas definidas en los modelos.
     """
     SQLModel.metadata.create_all(motor)
 
 
 def get_session():
     """
-    Genera una sesión de base de datos para cada petición.
-    Se utiliza como dependencia en los endpoints de FastAPI.
-
-    Yields:
-        session (Session): Sesión activa de conexión a la base de datos.
+    Devuelve una sesión activa con la base de datos.
+    Se usa como dependencia en los endpoints.
     """
     with Session(motor) as session:
         yield session

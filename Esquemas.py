@@ -6,8 +6,8 @@ from pydantic import Field
 
 class CategoryBase(SQLModel):
     """
-    Esquema base para las categorías.
-    Contiene los campos comunes utilizados en creación, lectura y actualización.
+    Modelo base para las categorías.
+    Contiene los campos que se usan al crear, leer o actualizar una categoría.
     """
     nombre: str = Field(min_length=3, description="Debe tener al menos 3 caracteres")
     descripcion: Optional[str] = None
@@ -15,16 +15,16 @@ class CategoryBase(SQLModel):
 
 class CategoryCreate(CategoryBase):
     """
-    Esquema utilizado para crear una nueva categoría.
-    Hereda todos los campos del esquema base (CategoryBase).
+    Se usa al crear una nueva categoría.
+    Hereda los campos del modelo base.
     """
     pass
 
 
 class CategoryRead(CategoryBase):
     """
-    Esquema utilizado para la lectura (salida) de categorías.
-    Incluye el identificador y el estado activo de la categoría.
+    Se usa al devolver una categoría desde la API.
+    Incluye el ID y el estado (activo o no).
     """
     id: int
     activo: bool = True
@@ -35,8 +35,8 @@ class CategoryRead(CategoryBase):
 
 class CategoryUpdate(SQLModel):
     """
-    Esquema utilizado para actualizar una categoría existente.
-    Todos los campos son opcionales, permitiendo actualizaciones parciales.
+    Se usa para actualizar una categoría existente.
+    Los campos son opcionales para poder cambiar solo lo necesario.
     """
     nombre: Optional[str] = Field(default=None, min_length=3)
     descripcion: Optional[str] = None
@@ -46,8 +46,8 @@ class CategoryUpdate(SQLModel):
 
 class ProductBase(SQLModel):
     """
-    Esquema base para los productos.
-    Define los campos principales que se reutilizan en creación, lectura y actualización.
+    Modelo base para los productos.
+    Define los campos principales que se usan en varios esquemas.
     """
     nombre: str
     descripcion: Optional[str] = None
@@ -67,8 +67,8 @@ class ProductCreate(ProductBase):
 
 class ProductRead(ProductBase):
     """
-    Esquema utilizado para la lectura (salida) de productos.
-    Incluye el identificador del producto.
+    Se usa al crear un producto nuevo.
+    Hereda los campos del modelo base.
     """
     id: int
 
@@ -78,8 +78,8 @@ class ProductRead(ProductBase):
 
 class ProductUpdate(SQLModel):
     """
-    Esquema utilizado para actualizar productos existentes.
-    Todos los campos son opcionales, permitiendo actualizaciones parciales (PUT/PATCH).
+    Se usa para actualizar un producto existente.
+    Todos los campos son opcionales, por si se quiere modificar solo algunos.
     """
     nombre: Optional[str] = None
     descripcion: Optional[str] = None

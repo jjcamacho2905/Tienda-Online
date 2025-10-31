@@ -1,18 +1,15 @@
 # API Tienda Online
 
-API REST creada con **FastAPI** y **SQLModel** para gestionar una tienda en línea.  
-Permite administrar **categorías** y **productos**, con operaciones completas **CRUD** (crear, leer, actualizar y eliminar).
+Este proyecto es una API hecha con FastAPI para manejar una tienda básica.
+Se pueden crear y administrar categorías y productos, y cada categoría puede tener varios productos asociados.
+También tiene opciones para activar o desactivar registros sin borrarlos del todo
 
 ---
 
-##  Características principales
-
-- CRUD completo para **categorías** y **productos**
-- Relación uno a muchos entre **categoría → productos**
-- Control de **estado activo/inactivo** (sin eliminar físicamente)
-- Validación para **evitar stock negativo**
-- Filtros opcionales por **stock**, **precio** o **categoría**
-- Base de datos ligera: `tienda.db` (SQLite)
+## Qué hace esta API
+- Permite crear, listar y borrar productos y categorías.
+- Las categorías pueden tener varios productos.
+- Los productos se pueden activar o desactivar sin eliminarl
 
 ---
 
@@ -55,8 +52,62 @@ pip install -r requirements.txt
 bash
 Copiar código
 cp .env.example .env
+
+Estructura del proyecto
+
+   main.py
+
+Archivo principal de la aplicación.
+
+Inicializa la API FastAPI
+
+Carga la base de datos al iniciar (on_startup)
+
+Define los endpoints principales (categorías y productos)
+
+Ejecuta el servidor con uvicorn main:app --reload
+
+   rutas.py
+
+Contiene los endpoints organizados por recursos:
+
+Rutas para categorías (/categorias)
+
+Rutas para productos (/productos)
+
+Lógica CRUD (GET, POST, PUT, DELETE)
+
+Implementa validaciones de negocio (stock, categorías, duplicados, etc.)
+
+   database.py
+
+Encargado de la configuración de la base de datos y la sesión:
+
+Carga variables de entorno (.env)
+
+Define el motor de base de datos (create_engine)
+
+Funciones para inicializar (init_db) y obtener sesión (get_session)
+
+    modelos.py
+
+Define las tablas y relaciones de la base de datos usando SQLModel:
+
+Categoria → tabla de categorías
+
+Producto → tabla de productos (relacionada con Categoria mediante categoria_id)
+
+    Esquemas.py
+
+Define los modelos Pydantic para validar datos de entrada/salida:
+
+CategoryCreate, CategoryRead, CategoryUpdate
+
+ProductCreate, ProductRead, ProductUpdate
+
+Controlan las reglas de negocio y validaciones de cada campo (nombre, precio, cantidad, etc.)
    
-    Estructura del proyecto
+   
 tienda-fastapi/
  ┣ main.py
  ┣ modelos.py
